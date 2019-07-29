@@ -12,13 +12,13 @@ namespace DacpacDeployUtility
         {
             try
             {
-                string publishFileFullPath = args[0];
-                string dacpacFileFullPath = args[1];
+                var publishFileFullPath = args[0];
+                var dacpacFileFullPath = args[1];
 
                 SetupRegistryQueryExecutionTimeout();
                 PublishDacpacSimple(publishFileFullPath, dacpacFileFullPath);
 
-                return 0; //where 0 = success
+                return 0;
             }
             catch (Exception ex)
             {
@@ -31,7 +31,6 @@ namespace DacpacDeployUtility
 
                 Console.WriteLine("Failed to publish dacpac.");
 
-                //Return error state
                 return 1;
             }
         }
@@ -66,7 +65,7 @@ namespace DacpacDeployUtility
             string dacpacFileFullPath)
         {
             var root = XElement.Load(publishFileFullPath);
-            XNamespace ns = root.GetDefaultNamespace(); 
+            var ns = root.GetDefaultNamespace(); 
             var targetDatabaseNameNode = root.Descendants(ns + "TargetDatabaseName").Single();
             var targetDatabaseName = targetDatabaseNameNode.Value;
             var connectionStringNode = root.Descendants(ns + "TargetConnectionString").Single();
@@ -88,16 +87,10 @@ namespace DacpacDeployUtility
                     options.SqlCommandVariableValues.Add(variableName, variableValue);
                 }
 
-
                 ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);
 
                 ds.Deploy(package, targetDatabaseName, true, options);
             }
-        }
-
-        private static string BuildConnectionString(string destinationServer, string destinationDatabase, string userID, string password)
-        {
-            return $"Data Source={destinationServer};Initial Catalog={destinationDatabase};User Id={userID};Password={password};MultipleActiveResultSets=True";
         }
     }
 }
