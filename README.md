@@ -13,4 +13,4 @@ To build the database project and generate the `.dacpac` file, just use `MSBuild
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" "[PathToDatabaseProject]\XXX.sqlproj" /t:build
 ```
 
-this should generate a .dacpac in the `bin\Debug` folder, then this utility can be used to publish/deploy to SQL Server instance
+this should generate the `.dacpac` file output in the `bin\Debug` folder, then this utility can be used to publish/deploy to SQL Server instance
