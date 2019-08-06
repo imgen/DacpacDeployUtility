@@ -4,7 +4,7 @@ A command line utility to replace `SqlPackage.exe` for publishing .dacpac file t
 # Why not `SqlPackage.exe`
 The problem with `SqlPackage.exe` is sometimes it will keep throwing `StackOverflow` exception while publishing/deployment can be done successfully using `Visual Studio`, suggesting `Visual Studio` is using something different to do the publishing. With this tool, `StackOverflow` exception can be avoided completely. 
 
-## Why not Visual Studio
+## Why not `Visual Studio`
 Using `Visual Studio` to open `.sqlproj` and do the publishing/deployment is painfully slow and constantly freeze up, this is true for both `VS2017` and `VS2019`.   
 
 ## Usage
@@ -19,4 +19,4 @@ To build the database project and generate the `.dacpac` file, just use `MSBuild
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" "[PathToDatabaseProject]\XXX.sqlproj" /t:build
 ```
 
-this should generate the `.dacpac` file output in the `bin\Debug` folder, then this utility can be used to publish/deploy to SQL Server instance
+this should generate the `.dacpac` file output in the `bin\Debug` folder, then this utility can be used to publish/deploy to `SQL Server` instance
