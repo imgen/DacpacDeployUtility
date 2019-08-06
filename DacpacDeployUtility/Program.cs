@@ -11,13 +11,19 @@ namespace DacpacDeployUtility
     {
         static int Main(string[] args)
         {
+            if (args.Length < 2)
+            {
+                Console.Error.WriteLine("Please provide enough parameters");
+                Console.Error.WriteLine("Usage: DacpacDeployUtility [PublishXmlFileFullPath] [DacpacFileFullPath]");
+                return 1;
+            }
+
+            var publishFileFullPath = args[0];
+            var dacpacFileFullPath = args[1];
             try
             {
-                var publishFileFullPath = args[0];
-                var dacpacFileFullPath = args[1];
-
                 SetupRegistryQueryExecutionTimeout();
-                PublishDacpacSimple(publishFileFullPath, dacpacFileFullPath);
+                PublishDacpac(publishFileFullPath, dacpacFileFullPath);
 
                 return 0;
             }
@@ -30,7 +36,7 @@ namespace DacpacDeployUtility
                     Console.WriteLine("Value in args[" + i + "]: " + args[i]);
                 }
 
-                Console.WriteLine("Failed to publish dacpac.");
+                Console.WriteLine($"Failed to publish dacpac {dacpacFileFullPath}.");
 
                 return 1;
             }
@@ -61,7 +67,7 @@ namespace DacpacDeployUtility
             }
         }
 
-        private static void PublishDacpacSimple(
+        private static void PublishDacpac(
             string publishFileFullPath,
             string dacpacFileFullPath)
         {
