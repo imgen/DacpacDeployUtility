@@ -20,3 +20,11 @@ To build the database project and generate the `.dacpac` file, just use `MSBuild
 ```
 
 this should generate the `.dacpac` file output in the `bin\Debug` folder, then this utility can be used to publish/deploy to `SQL Server` instance
+
+## Supported Publish XML file options
+### TargetDatabaseName: Required. 
+### TargetConnectionString: Required
+### IncludeCompositeObjects: Optional
+### BlockOnPossibleDataLoss: Optional
+### CreateNewDatabase: Optional
+### ScriptDatabaseCompatibility: Optional
