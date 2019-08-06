@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using System;
 using System.Xml.Linq;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace DacpacDeployUtility
 {
@@ -72,21 +73,18 @@ namespace DacpacDeployUtility
                 throw new ApplicationException("Required 'TargetDatabaseName' node is missing or empty");
             }
             var targetDatabaseName = targetDatabaseNameNode.Value;
-            var connectionStringNode = root.Descendants(ns + "TargetConnectionString").FirstOrDefault();
+            var connectionStringNode = GetNode("TargetConnectionString");
             if (string.IsNullOrWhiteSpace(connectionStringNode?.Value))
             {
                 throw new ApplicationException("Required 'TargetConnectionString' node is missing or empty");
             }
             var connectionString = connectionStringNode.Value;
-            var createNewDatabaseNode = root.Descendants(ns + "CreateNewDatabase").FirstOrDefault();
-            bool createNewDatabase = createNewDatabaseNode?.Value?.ToLowerInvariant() == "true";
-            var blockOnPossibleDataLossNode = root.Descendants(ns + "BlockOnPossibleDataLoss").FirstOrDefault();
-            var blockOnPossibleDataLoss = blockOnPossibleDataLossNode.Value.ToLowerInvariant() == "true";
-            var includeCompositeObjectsNode = root.Descendants(ns + "IncludeCompositeObjects").FirstOrDefault();
-            var includeCompositeObjects = includeCompositeObjectsNode.Value.ToLowerInvariant() == "true";
-            var scriptDatabaseCompatibilityNode = root.Descendants(ns + "ScriptDatabaseCompatibility").FirstOrDefault();
-            var scriptDatabaseCompatibility = scriptDatabaseCompatibilityNode?.Value?.ToLowerInvariant() == "true";
-            var sqlCmdVariableNodes = root.Descendants(ns + "SqlCmdVariable");
+            var createNewDatabase = GetBooleanNode("CreateNewDatabase");
+            var blockOnPossibleDataLoss = GetBooleanNode("BlockOnPossibleDataLoss");
+            var includeCompositeObjects = GetBooleanNode("IncludeCompositeObjects");
+            var scriptDatabaseCompatibility = GetBooleanNode("ScriptDatabaseCompatibility");
+            var generateSmartDefaults = GetBooleanNode("GenerateSmartDefaults");
+            var sqlCmdVariableNodes = GetNodes("SqlCmdVariable");
             var ds = new DacServices(connectionString);
             using (var package = DacPackage.Load(dacpacFileFullPath))
             {
@@ -95,24 +93,29 @@ namespace DacpacDeployUtility
                     CommandTimeout = 600
                 };
 
-                if (createNewDatabaseNode != null)
+                if (createNewDatabase != null)
                 {
-                    options.CreateNewDatabase = createNewDatabase;
+                    options.CreateNewDatabase = createNewDatabase.Value;
                 }
 
-                if (blockOnPossibleDataLossNode != null)
+                if (blockOnPossibleDataLoss != null)
                 {
-                    options.BlockOnPossibleDataLoss = blockOnPossibleDataLoss;
+                    options.BlockOnPossibleDataLoss = blockOnPossibleDataLoss.Value;
                 }
 
-                if (includeCompositeObjectsNode != null)
+                if (includeCompositeObjects != null)
                 {
-                    options.IncludeCompositeObjects = includeCompositeObjects;
+                    options.IncludeCompositeObjects = includeCompositeObjects.Value;
                 }
 
-                if (scriptDatabaseCompatibilityNode != null)
+                if (scriptDatabaseCompatibility != null)
                 {
-                    options.ScriptDatabaseCompatibility = scriptDatabaseCompatibility;
+                    options.ScriptDatabaseCompatibility = scriptDatabaseCompatibility.Value;
+                }
+
+                if (generateSmartDefaults != null)
+                {
+                    options.GenerateSmartDefaults = generateSmartDefaults.Value;
                 }
 
                 foreach(XElement node in sqlCmdVariableNodes)
@@ -126,6 +129,16 @@ namespace DacpacDeployUtility
                 ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);
 
                 ds.Deploy(package, targetDatabaseName, true, options);
+            }
+
+            IEnumerable<XElement> GetNodes(string nodeName) => root.Descendants(ns + nodeName);
+
+            XElement GetNode(string nodeName) => GetNodes(nodeName).FirstOrDefault();
+
+            bool? GetBooleanNode(string nodeName)
+            {
+                var node = GetNode(nodeName);
+                return node == null? (bool?)node : node.Value?.ToLowerInvariant() == "true";
             }
         }
     }
