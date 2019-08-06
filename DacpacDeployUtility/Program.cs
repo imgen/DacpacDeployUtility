@@ -70,6 +70,14 @@ namespace DacpacDeployUtility
             var targetDatabaseName = targetDatabaseNameNode.Value;
             var connectionStringNode = root.Descendants(ns + "TargetConnectionString").Single();
             var connectionString = connectionStringNode.Value;
+            var createNewDatabaseNode = root.Descendants(ns + "CreateNewDatabase").FirstOrDefault();
+            bool createNewDatabase = createNewDatabaseNode?.Value?.ToLowerInvariant() == "true";
+            var blockOnPossibleDataLossNode = root.Descendants(ns + "BlockOnPossibleDataLoss").FirstOrDefault();
+            var blockOnPossibleDataLoss = blockOnPossibleDataLossNode.Value.ToLowerInvariant() == "true";
+            var includeCompositeObjectsNode = root.Descendants(ns + "IncludeCompositeObjects").FirstOrDefault();
+            var includeCompositeObjects = includeCompositeObjectsNode.Value.ToLowerInvariant() == "true";
+            var scriptDatabaseCompatibilityNode = root.Descendants(ns + "ScriptDatabaseCompatibility").FirstOrDefault();
+            var scriptDatabaseCompatibility = scriptDatabaseCompatibilityNode?.Value?.ToLowerInvariant() == "true";
             var sqlCmdVariableNodes = root.Descendants(ns + "SqlCmdVariable");
             var ds = new DacServices(connectionString);
             using (var package = DacPackage.Load(dacpacFileFullPath))
@@ -78,6 +86,26 @@ namespace DacpacDeployUtility
                 {
                     CommandTimeout = 600
                 };
+
+                if (createNewDatabaseNode != null)
+                {
+                    options.CreateNewDatabase = createNewDatabase;
+                }
+
+                if (blockOnPossibleDataLossNode != null)
+                {
+                    options.BlockOnPossibleDataLoss = blockOnPossibleDataLoss;
+                }
+
+                if (includeCompositeObjectsNode != null)
+                {
+                    options.IncludeCompositeObjects = includeCompositeObjects;
+                }
+
+                if (scriptDatabaseCompatibilityNode != null)
+                {
+                    options.ScriptDatabaseCompatibility = scriptDatabaseCompatibility;
+                }
 
                 foreach(XElement node in sqlCmdVariableNodes)
                 {
