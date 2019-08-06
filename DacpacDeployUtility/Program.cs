@@ -66,9 +66,17 @@ namespace DacpacDeployUtility
         {
             var root = XElement.Load(publishFileFullPath);
             var ns = root.GetDefaultNamespace(); 
-            var targetDatabaseNameNode = root.Descendants(ns + "TargetDatabaseName").Single();
+            var targetDatabaseNameNode = root.Descendants(ns + "TargetDatabaseName").FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(targetDatabaseNameNode?.Value))
+            {
+                throw new ApplicationException("Required 'TargetDatabaseName' node is missing or empty");
+            }
             var targetDatabaseName = targetDatabaseNameNode.Value;
-            var connectionStringNode = root.Descendants(ns + "TargetConnectionString").Single();
+            var connectionStringNode = root.Descendants(ns + "TargetConnectionString").FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(connectionStringNode?.Value))
+            {
+                throw new ApplicationException("Required 'TargetConnectionString' node is missing or empty");
+            }
             var connectionString = connectionStringNode.Value;
             var createNewDatabaseNode = root.Descendants(ns + "CreateNewDatabase").FirstOrDefault();
             bool createNewDatabase = createNewDatabaseNode?.Value?.ToLowerInvariant() == "true";
