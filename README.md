@@ -28,3 +28,4 @@ this should generate the `.dacpac` file output in the `bin\Debug` folder, then t
 ### BlockOnPossibleDataLoss: Optional
 ### CreateNewDatabase: Optional
 ### ScriptDatabaseCompatibility: Optional
+### GenerateSmartDefaults: Optional
