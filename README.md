@@ -5,7 +5,7 @@ A command line utility to replace `SqlPackage.exe` for publishing .dacpac file t
 The problem with `SqlPackage.exe` is sometimes it will keep throwing `StackOverflow` exception while publishing/deployment can be done successfully using `Visual Studio`, suggesting `Visual Studio` is using something different to do the publishing. With this tool, `StackOverflow` exception can be avoided completely. 
 
 ## Why not `Visual Studio`
-Using `Visual Studio` to open `.sqlproj` and do the publishing/deployment is painfully slow and constantly freeze up, this is true for both `VS2017` and `VS2019`.   
+Using `Visual Studio` to open `.sqlproj` and do the publishing/deployment is painfully slow and constantly freeze up, also it is a manual labour, this is true for both `VS2017` and `VS2019`.  
 
 ## Usage
 ```
