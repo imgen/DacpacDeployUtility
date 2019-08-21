@@ -9,4 +9,10 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="binaries\linux\" />
+    <Folder Include="binaries\osx.10.12\" />
+    <Folder Include="binaries\win10\" />
+  </ItemGroup>
+
 </Project>

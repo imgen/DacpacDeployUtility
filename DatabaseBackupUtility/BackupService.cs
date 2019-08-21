@@ -45,7 +45,7 @@ namespace DatabaseBackupUtility
             }
         }
 
-        private IEnumerable<string> GetAllUserDatabases()
+        private List<string> GetAllUserDatabases()
         {
             var databases = new List<string>();
 
