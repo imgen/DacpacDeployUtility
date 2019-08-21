@@ -27,7 +27,8 @@ namespace DatabaseBackupUtility
             }
         }
 
-        public void BackupDatabase(string databaseName)
+        private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMinutes(20).TotalSeconds;
+        public void BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);
             using (var connection = new SqlConnection(_connectionString))
@@ -35,7 +36,7 @@ namespace DatabaseBackupUtility
                 var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
                 using (var command = new SqlCommand(query, connection) 
                 {
-                    CommandTimeout = (int)TimeSpan.FromMinutes(10).TotalSeconds 
+                    CommandTimeout = timeout?? DefaultCommandTimeout
                 })
                 {
                     connection.Open();
