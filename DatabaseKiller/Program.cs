@@ -57,7 +57,7 @@ namespace DatabaseKiller
         private static void KillDatabase(string connectionString, string databaseName, int? timeout = default)
         {
             var userDatabases = GetAllUserDatabases(connectionString);
-            if (userDatabases.All(db => db.Equals(databaseName, StringComparison.InvariantCultureIgnoreCase)))
+            if (userDatabases.All(db => !db.Equals(databaseName, StringComparison.InvariantCultureIgnoreCase)))
             {
                 Console.Error.WriteLine($"The database {databaseName} doesn't exist");
                 return;
