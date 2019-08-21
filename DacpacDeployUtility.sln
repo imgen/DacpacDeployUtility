@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DacpacDeployUtility", "Dacp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BacpacImportUtility", "BacpacImportUtility\BacpacImportUtility.csproj", "{63A3C190-2726-4DFC-8BDB-F96132E00C01}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseBackupUtility", "DatabaseBackupUtility\DatabaseBackupUtility.csproj", "{B0B7FF10-5709-4ABE-A985-B072210D524D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{63A3C190-2726-4DFC-8BDB-F96132E00C01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63A3C190-2726-4DFC-8BDB-F96132E00C01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63A3C190-2726-4DFC-8BDB-F96132E00C01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0B7FF10-5709-4ABE-A985-B072210D524D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0B7FF10-5709-4ABE-A985-B072210D524D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0B7FF10-5709-4ABE-A985-B072210D524D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0B7FF10-5709-4ABE-A985-B072210D524D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
