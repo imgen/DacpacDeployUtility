@@ -10,7 +10,7 @@ namespace DatabaseRestoreUtility
         {
             using (var connection = new SqlConnection(connectionString))
             {
-                var query = $@"RESTORE DATABASE {databaseName} FROM DISK='{bakFilePath}'";
+                var query = $"RESTORE DATABASE {databaseName} FROM DISK='{bakFilePath}'";
                 using (var command = new SqlCommand(query, connection)
                 {
                     CommandTimeout = timeout ?? DefaultCommandTimeout
