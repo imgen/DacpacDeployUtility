@@ -46,25 +46,16 @@ namespace DacpacDeployUtility
         {
             //Fixes an annoying issue with slow sql servers: https://stackoverflow.com/a/26108419/2912011
             var myKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\VisualStudio\\12.0\\SQLDB\\Database", true);
-            if (myKey != null)
-            {
-                myKey.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
-                myKey.Close();
-            }
+            myKey?.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
+            myKey?.Close();
 
             myKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\VisualStudio\\14.0\\SQLDB\\Database", true);
-            if (myKey != null)
-            {
-                myKey.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
-                myKey.Close();
-            }
+            myKey?.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
+            myKey?.Close();
 
             myKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\VisualStudio\\15.0\\SQLDB\\Database", true);
-            if (myKey != null)
-            {
-                myKey.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
-                myKey.Close();
-            }
+            myKey?.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
+            myKey?.Close();
         }
 
         private static void PublishDacpac(
@@ -92,50 +83,48 @@ namespace DacpacDeployUtility
             var generateSmartDefaults = GetBooleanNode("GenerateSmartDefaults");
             var sqlCmdVariableNodes = GetNodes("SqlCmdVariable");
             var ds = new DacServices(connectionString);
-            using (var package = DacPackage.Load(dacpacFileFullPath))
+            using var package = DacPackage.Load(dacpacFileFullPath);
+            var options = new DacDeployOptions
             {
-                var options = new DacDeployOptions
-                {
-                    CommandTimeout = 600
-                };
+                CommandTimeout = 600
+            };
 
-                if (createNewDatabase != null)
-                {
-                    options.CreateNewDatabase = createNewDatabase.Value;
-                }
-
-                if (blockOnPossibleDataLoss != null)
-                {
-                    options.BlockOnPossibleDataLoss = blockOnPossibleDataLoss.Value;
-                }
-
-                if (includeCompositeObjects != null)
-                {
-                    options.IncludeCompositeObjects = includeCompositeObjects.Value;
-                }
-
-                if (scriptDatabaseCompatibility != null)
-                {
-                    options.ScriptDatabaseCompatibility = scriptDatabaseCompatibility.Value;
-                }
-
-                if (generateSmartDefaults != null)
-                {
-                    options.GenerateSmartDefaults = generateSmartDefaults.Value;
-                }
-
-                foreach(XElement node in sqlCmdVariableNodes)
-                {
-                    var variableName = (string)node.Attribute("Include");
-                    var valueNode = node.Element(ns + "Value");
-                    var variableValue = node.Value;
-                    options.SqlCommandVariableValues.Add(variableName, variableValue);
-                }
-
-                ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);
-
-                ds.Deploy(package, targetDatabaseName, true, options);
+            if (createNewDatabase != null)
+            {
+                options.CreateNewDatabase = createNewDatabase.Value;
             }
+
+            if (blockOnPossibleDataLoss != null)
+            {
+                options.BlockOnPossibleDataLoss = blockOnPossibleDataLoss.Value;
+            }
+
+            if (includeCompositeObjects != null)
+            {
+                options.IncludeCompositeObjects = includeCompositeObjects.Value;
+            }
+
+            if (scriptDatabaseCompatibility != null)
+            {
+                options.ScriptDatabaseCompatibility = scriptDatabaseCompatibility.Value;
+            }
+
+            if (generateSmartDefaults != null)
+            {
+                options.GenerateSmartDefaults = generateSmartDefaults.Value;
+            }
+
+            foreach(XElement node in sqlCmdVariableNodes)
+            {
+                var variableName = (string)node.Attribute("Include");
+                var valueNode = node.Element(ns + "Value");
+                var variableValue = node.Value;
+                options.SqlCommandVariableValues.Add(variableName, variableValue);
+            }
+
+            ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);
+
+            ds.Deploy(package, targetDatabaseName, true, options);
 
             IEnumerable<XElement> GetNodes(string nodeName) => root.Descendants(ns + nodeName);
 

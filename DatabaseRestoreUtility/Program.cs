@@ -35,7 +35,7 @@ namespace DatabaseRestoreUtility
                 throw new ArgumentException($"The provided data directory path {dataDir} doesn't exist");
             }
 
-            new RestoreService().RestoreDatabase(connectionString, 
+            RestoreService.RestoreDatabase(connectionString, 
                 database, 
                 bakFilePath, 
                 logicalDbName, 

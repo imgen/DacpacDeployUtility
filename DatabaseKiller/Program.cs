@@ -27,30 +27,16 @@ namespace DatabaseKiller
 
         private static List<string> GetAllUserDatabases(string connectionString)
         {
-            var databases = new List<string>();
+            using var connection = new SqlConnection(connectionString);
+            connection.Open();
+            var databasesTable = connection.GetSchema("Databases");
+            connection.Close();
 
-            DataTable databasesTable;
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                databasesTable = connection.GetSchema("Databases");
-
-                connection.Close();
-            }
-
-            foreach (DataRow row in databasesTable.Rows)
-            {
-                string databaseName = row["database_name"].ToString();
-
-                if (_systemDatabaseNames.Contains(databaseName))
-                    continue;
-
-                databases.Add(databaseName);
-            }
-
-            return databases;
+            return databasesTable.Rows
+                .OfType<DataRow>()
+                .Select(row => row["database_name"].ToString())
+                .Where(dbName => !_systemDatabaseNames.Contains(dbName))
+                .ToList();
         }
 
         private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMinutes(20).TotalSeconds;
@@ -62,25 +48,21 @@ namespace DatabaseKiller
                 Console.Error.WriteLine($"The database {databaseName} doesn't exist");
                 return;
             }
-            using (var connection = new SqlConnection(connectionString))
-            {
-                var commands = new[]
+            using var connection = new SqlConnection(connectionString);
+            var commands = new[]
                 {
                     "USE master",
                     $"ALTER DATABASE {databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE",
                     $"DROP DATABASE {databaseName}"
                 };
-                connection.Open();
-                foreach(var command in commands)
+            connection.Open();
+            foreach (var command in commands)
+            {
+                using var sqlCommand = new SqlCommand(command, connection)
                 {
-                    using (var sqlCommand = new SqlCommand(command, connection)
-                    {
-                        CommandTimeout = timeout ?? DefaultCommandTimeout
-                    })
-                    {
-                        sqlCommand.ExecuteNonQuery();
-                    }
-                }
+                    CommandTimeout = timeout ?? DefaultCommandTimeout
+                };
+                sqlCommand.ExecuteNonQuery();
             }
         }
     }

@@ -31,46 +31,27 @@ namespace DatabaseBackupUtility
         public void BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);
-            using (var connection = new SqlConnection(_connectionString))
+            using var connection = new SqlConnection(_connectionString);
+            var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
+            using var command = new SqlCommand(query, connection)
             {
-                var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
-                using (var command = new SqlCommand(query, connection) 
-                {
-                    CommandTimeout = timeout?? DefaultCommandTimeout
-                })
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-            }
+                CommandTimeout = timeout ?? DefaultCommandTimeout
+            };
+            connection.Open();
+            command.ExecuteNonQuery();
         }
 
         private List<string> GetAllUserDatabases()
         {
-            var databases = new List<string>();
+            using var connection = new SqlConnection(_connectionString);
+            connection.Open();
+            var databasesTable = connection.GetSchema("Databases");
 
-            DataTable databasesTable;
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                databasesTable = connection.GetSchema("Databases");
-
-                connection.Close();
-            }
-
-            foreach (DataRow row in databasesTable.Rows)
-            {
-                string databaseName = row["database_name"].ToString();
-
-                if (_systemDatabaseNames.Contains(databaseName))
-                    continue;
-
-                databases.Add(databaseName);
-            }
-
-            return databases;
+            return databasesTable.Rows
+                .OfType<DataRow>()
+                .Select(row => row["database_name"].ToString())
+                .Where(dbName => !_systemDatabaseNames.Contains(dbName))
+                .ToList();
         }
 
         private string BuildBackupPathWithFilename(string databaseName)

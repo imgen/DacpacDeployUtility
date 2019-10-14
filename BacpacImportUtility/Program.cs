@@ -43,25 +43,16 @@ namespace BacpacImportUtility
         {
             //Fixes an annoying issue with slow sql servers: https://stackoverflow.com/a/26108419/2912011
             var myKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\VisualStudio\\12.0\\SQLDB\\Database", true);
-            if (myKey != null)
-            {
-                myKey.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
-                myKey.Close();
-            }
+            myKey?.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
+            myKey?.Close();
 
             myKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\VisualStudio\\14.0\\SQLDB\\Database", true);
-            if (myKey != null)
-            {
-                myKey.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
-                myKey.Close();
-            }
+            myKey?.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
+            myKey?.Close();
 
             myKey = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\VisualStudio\\15.0\\SQLDB\\Database", true);
-            if (myKey != null)
-            {
-                myKey.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
-                myKey.Close();
-            }
+            myKey?.SetValue("QueryTimeoutSeconds", "0", RegistryValueKind.DWord);
+            myKey?.Close();
         }
 
         private static void ImportBacpac(
@@ -70,17 +61,15 @@ namespace BacpacImportUtility
             string bacpacFileFullPath)
         {
             var ds = new DacServices(connectionString);
-            using (var package = BacPackage.Load(bacpacFileFullPath))
+            using var package = BacPackage.Load(bacpacFileFullPath);
+            var options = new DacImportOptions
             {
-                var options = new DacImportOptions
-                {
-                    CommandTimeout = 600
-                };
+                CommandTimeout = 600
+            };
 
-                ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);
+            ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);
 
-                ds.ImportBacpac(package, targetDatabaseName, options);
-            }
+            ds.ImportBacpac(package, targetDatabaseName, options);
         }
     }
 }
