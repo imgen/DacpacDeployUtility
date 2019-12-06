@@ -27,7 +27,7 @@ namespace DatabaseBackupUtility
             }
         }
 
-        private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMinutes(20).TotalSeconds;
+        private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMilliseconds(2000).TotalSeconds;
         public void BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);
