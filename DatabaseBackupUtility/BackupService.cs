@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DatabaseBackupUtility
 {
@@ -19,16 +20,16 @@ namespace DatabaseBackupUtility
             _backupFolderFullPath = backupFolderFullPath;
         }
 
-        public void BackupAllUserDatabases()
+        public async Task BackupAllUserDatabases()
         {
-            foreach (string databaseName in GetAllUserDatabases())
+            foreach (string databaseName in await GetAllUserDatabases())
             {
-                BackupDatabase(databaseName);
+                await BackupDatabase(databaseName);
             }
         }
 
         private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMilliseconds(2000).TotalSeconds;
-        public void BackupDatabase(string databaseName, int? timeout = default)
+        public async Task BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);
             using var connection = new SqlConnection(_connectionString);
@@ -37,14 +38,14 @@ namespace DatabaseBackupUtility
             {
                 CommandTimeout = timeout ?? DefaultCommandTimeout
             };
-            connection.Open();
-            command.ExecuteNonQuery();
+            await connection.OpenAsync();
+            await command.ExecuteNonQueryAsync();
         }
 
-        private List<string> GetAllUserDatabases()
+        private async Task<List<string>> GetAllUserDatabases()
         {
             using var connection = new SqlConnection(_connectionString);
-            connection.Open();
+            await connection.OpenAsync();
             var databasesTable = connection.GetSchema("Databases");
 
             return databasesTable.Rows

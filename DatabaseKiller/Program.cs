@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DatabaseKiller
 {
@@ -25,10 +26,10 @@ namespace DatabaseKiller
             return 0;
         }
 
-        private static List<string> GetAllUserDatabases(string connectionString)
+        private static async Task<List<string>> GetAllUserDatabases(string connectionString)
         {
             using var connection = new SqlConnection(connectionString);
-            connection.Open();
+            await connection.OpenAsync();
             var databasesTable = connection.GetSchema("Databases");
             connection.Close();
 
@@ -40,9 +41,9 @@ namespace DatabaseKiller
         }
 
         private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMinutes(20).TotalSeconds;
-        private static void KillDatabase(string connectionString, string databaseName, int? timeout = default)
+        private static async Task KillDatabase(string connectionString, string databaseName, int? timeout = default)
         {
-            var userDatabases = GetAllUserDatabases(connectionString);
+            var userDatabases = await GetAllUserDatabases(connectionString);
             if (userDatabases.All(db => !db.Equals(databaseName, StringComparison.InvariantCultureIgnoreCase)))
             {
                 Console.Error.WriteLine($"The database {databaseName} doesn't exist");
@@ -55,14 +56,14 @@ namespace DatabaseKiller
                     $"ALTER DATABASE {databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE",
                     $"DROP DATABASE {databaseName}"
                 };
-            connection.Open();
+            await connection.OpenAsync();
             foreach (var command in commands)
             {
                 using var sqlCommand = new SqlCommand(command, connection)
                 {
                     CommandTimeout = timeout ?? DefaultCommandTimeout
                 };
-                sqlCommand.ExecuteNonQuery();
+                await sqlCommand.ExecuteNonQueryAsync();
             }
         }
     }

@@ -23,7 +23,7 @@ namespace DatabaseRestoreUtility
             {
                 CommandTimeout = timeout ?? DefaultCommandTimeout
             };
-            connection.Open();
+            await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
             var logicalNames = new List<string>();
             while (reader.Read())
@@ -43,7 +43,6 @@ MOVE '{logicalLogName}' TO '{Path.Combine(dataDir, dbName + ".ldf")}'
             {
                 CommandTimeout = timeout ?? DefaultCommandTimeout
             };
-
             await command2.ExecuteNonQueryAsync();
         }
     }

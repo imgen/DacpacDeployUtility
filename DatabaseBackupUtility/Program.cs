@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DatabaseBackupUtility
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var connectionString = args.Length > 0? 
                 args[0] : throw new ArgumentException($"Please pass connection string as first argument");
@@ -23,7 +24,7 @@ namespace DatabaseBackupUtility
             }
 
             var backupService = new BackupService(connectionString, dirInfo.FullName);
-            backupService.BackupDatabase(database);
+            await backupService.BackupDatabase(database);
         }
     }
 }
