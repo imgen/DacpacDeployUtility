@@ -31,9 +31,9 @@ namespace DatabaseRestoreUtility
                 logicalNames.Add(reader.GetString(0));
             }
             reader.Close();
-
             var logicalDbName = logicalNames[0];
             var logicalLogName = logicalNames[1];
+
             query = $@"RESTORE DATABASE {dbName} 
 FROM DISK='{bakFilePath}'
 WITH MOVE '{logicalDbName}' TO '{Path.Combine(dataDir, dbName + ".mdf")}',

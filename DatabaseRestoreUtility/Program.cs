@@ -17,7 +17,7 @@ namespace DatabaseRestoreUtility
             var dataDir = args.Length > 2? 
                 args[2] : throw new ArgumentException($"Please pass the data directory which will store the restored database");
 
-            var databaseName = args.Length > 3? 
+            var dbName = args.Length > 3? 
                 args[3] : throw new ArgumentException($"Please pass the name of destination database"); 
 
             var fi = new FileInfo(bakFilePath);
@@ -31,10 +31,12 @@ namespace DatabaseRestoreUtility
                 throw new ArgumentException($"The provided data directory path {dataDir} doesn't exist");
             }
 
+            Console.WriteLine($"Restoring bak file {bakFilePath} to database {dbName}");
             await RestoreService.RestoreDatabase(connectionString, 
                 bakFilePath, 
                 dataDir, 
-                databaseName);
+                dbName);
+            Console.WriteLine($"Finished restoring bak file {bakFilePath} to database {dbName}");
         }
     }
 }
