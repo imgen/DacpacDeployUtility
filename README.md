@@ -1,5 +1,17 @@
 # DacpacDeployUtility
-A command line utility to replace `SqlPackage.exe` for publishing .dacpac file to database. 
+A command line utility to replace `SqlPackage.exe` for publishing .dacpac file to database. Also some other database tools, such as 
+
+## BacpacImportUtility
+A command line utility to import `.bacpac` files into a database
+
+## DatabaseBackupUtility
+A command line utility to backup a database
+
+## DatabaseKiller
+A command line utility to delete a database
+
+## DatabaseRestoreUtility
+A command line utility to restore database from `.bak` files
 
 # Why not `SqlPackage.exe`
 The problem with `SqlPackage.exe` is sometimes it will keep throwing `StackOverflow` exception while publishing/deployment can be done successfully using `Visual Studio`, suggesting `Visual Studio` is using something different to do the publishing. With this tool, `StackOverflow` exception can be avoided completely. 
