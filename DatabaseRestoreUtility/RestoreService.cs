@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DatabaseRestoreUtility
 {
     public static class RestoreService
     {
-        private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromHours(24).TotalSeconds;
+        private static readonly int DefaultCommandTimeout = 
+            (int)TimeSpan.FromHours(24).TotalSeconds;
+
+        private const string LogicalNameColumn = "LogicalName";
+         
         public static async Task RestoreDatabase(string connectionString, 
             string bakFilePath, 
             string dataDir,
@@ -25,10 +30,14 @@ namespace DatabaseRestoreUtility
             };
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
+            var columns = Enumerable.Range(0, reader.FieldCount)
+                .Select(reader.GetName)
+                .ToList();
+            var logicalNameColumnIndex = columns.IndexOf(LogicalNameColumn);
             var logicalNames = new List<string>();
             while (reader.Read())
             {
-                logicalNames.Add(reader.GetString(0));
+                logicalNames.Add(reader.GetString(logicalNameColumnIndex));
             }
             reader.Close();
             var logicalDbName = logicalNames[0];
