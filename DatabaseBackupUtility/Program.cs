@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseTools.Common;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,6 +9,10 @@ namespace DatabaseBackupUtility
     {
         static async Task Main(string[] args)
         {
+            CommandLineUtils.ShowUsageIfHelpRequested(
+                @"Usage: 
+DatabaseBackupUtility [Required: Connection string] [Required: The name of the database] [Required: The path of the directory to save the .bak file]",
+                args);
             var connectionString = args.Length > 0? 
                 args[0] : throw new ArgumentException($"Please pass connection string as first argument");
 

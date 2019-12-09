@@ -1,4 +1,5 @@
-﻿using Microsoft.SqlServer.Dac;
+﻿using DatabaseTools.Common;
+using Microsoft.SqlServer.Dac;
 using Microsoft.Win32;
 using System;
 
@@ -8,10 +9,13 @@ namespace BacpacImportUtility
     {
         static int Main(string[] args)
         {
+            const string usage = "Usage: BacpacImportUtility [Required: ConnectionString] [Required: TargetDatabaseName] [Required: BacpacFileFullPath]";
+            CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
+
             if (args.Length < 3)
             {
                 Console.Error.WriteLine("Please provide enough parameters");
-                Console.Error.WriteLine("Usage: BacpacImportUtility [ConnectionString] [TargetDatabaseName] [BacpacFileFullPath]");
+                Console.Error.WriteLine(usage);
                 return 1;
             }
             var connectionString = args[0];

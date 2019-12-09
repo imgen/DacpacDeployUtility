@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseTools.Common;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -13,16 +14,18 @@ namespace DatabaseKiller
 
         static int Main(string[] args)
         {
+            const string usage = "Usage: DatabaseKiller [ConnectionString] [DatabaseName]";
+            CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
             if (args.Length < 2)
             {
                 Console.Error.WriteLine("Please provide enough parameters");
-                Console.Error.WriteLine("Usage: DatabaseKiller [ConnectionString] [DatabaseName]");
+                Console.Error.WriteLine(usage);
                 return -1;
             }
             var connectionString = args[0];
             var database = args[1];
 
-            KillDatabase(connectionString, database);
+            await KillDatabase(connectionString, database);
             return 0;
         }
 

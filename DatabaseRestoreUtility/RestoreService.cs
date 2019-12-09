@@ -24,10 +24,7 @@ namespace DatabaseRestoreUtility
 
             var query = $@"RESTORE FILELISTONLY 
    FROM DISK='{bakFilePath}'";
-            using var command = new SqlCommand(query, connection)
-            {
-                CommandTimeout = timeout ?? DefaultCommandTimeout
-            };
+            using var command = new SqlCommand(query, connection);
             await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
             var columns = Enumerable.Range(0, reader.FieldCount)

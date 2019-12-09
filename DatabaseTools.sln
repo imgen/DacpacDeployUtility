@@ -9,9 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BacpacImportUtility", "Bacp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseBackupUtility", "DatabaseBackupUtility\DatabaseBackupUtility.csproj", "{B0B7FF10-5709-4ABE-A985-B072210D524D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseRestoreUtility", "DatabaseRestoreUtility\DatabaseRestoreUtility.csproj", "{9CB86CC7-2CE2-4E70-AB6B-91CA1005019C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseRestoreUtility", "DatabaseRestoreUtility\DatabaseRestoreUtility.csproj", "{9CB86CC7-2CE2-4E70-AB6B-91CA1005019C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseKiller", "DatabaseKiller\DatabaseKiller.csproj", "{6C07D05E-F6D5-4EF3-9868-AFAD9BFD8D0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseKiller", "DatabaseKiller\DatabaseKiller.csproj", "{6C07D05E-F6D5-4EF3-9868-AFAD9BFD8D0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseTools.Common", "DatabaseTools.Common\DatabaseTools.Common.csproj", "{2B62FA2F-1B2C-4E23-9789-36324F37F25F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{6C07D05E-F6D5-4EF3-9868-AFAD9BFD8D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C07D05E-F6D5-4EF3-9868-AFAD9BFD8D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C07D05E-F6D5-4EF3-9868-AFAD9BFD8D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B62FA2F-1B2C-4E23-9789-36324F37F25F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B62FA2F-1B2C-4E23-9789-36324F37F25F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B62FA2F-1B2C-4E23-9789-36324F37F25F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B62FA2F-1B2C-4E23-9789-36324F37F25F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

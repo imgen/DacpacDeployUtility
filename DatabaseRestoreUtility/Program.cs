@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseTools.Common;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,6 +9,10 @@ namespace DatabaseRestoreUtility
     {
         static async Task Main(string[] args)
         {
+            CommandLineUtils.ShowUsageIfHelpRequested(
+                @"Usage: 
+DatabaseRestoreUtility [Required: Connection string] [Required: Bak file path] [Required: The data directory which will store the files of the restored database] [Required: The name of the restored database] [Optional: The operation timeout in minutes]", 
+                args);
             var connectionString = args.Length > 0 ?
                 args[0] : throw new ArgumentException($"Please pass connection string as first argument");
 
@@ -24,15 +29,15 @@ namespace DatabaseRestoreUtility
                 args[4] : null;
 
             if (timeoutString != null && 
-                (!int.TryParse(timeoutString, out var timeout) ||
-                 timeout <= 0)
+                (!int.TryParse(timeoutString, out var timeoutInMinutes) ||
+                 timeoutInMinutes <= 0)
                 )
             {
                 throw new ArgumentException($"The passed timeout is not a valid integer");
             }
             else
             {
-                timeout = 0;
+                timeoutInMinutes = 0;
             }
 
             var fi = new FileInfo(bakFilePath);
@@ -51,7 +56,7 @@ namespace DatabaseRestoreUtility
                 bakFilePath, 
                 dataDir, 
                 dbName,
-                timeout > 0? timeout : (int?)null);
+                timeoutInMinutes > 0? timeoutInMinutes * 60 : (int?)null);
             Console.WriteLine($"Finished restoring bak file {bakFilePath} to database {dbName}");
         }
     }

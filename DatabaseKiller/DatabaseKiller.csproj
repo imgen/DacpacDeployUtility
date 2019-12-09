@@ -7,13 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="binaries\linux\" />
     <Folder Include="binaries\osx.10.12\" />
     <Folder Include="binaries\win10\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DatabaseTools.Common\DatabaseTools.Common.csproj" />
   </ItemGroup>
 
 </Project>

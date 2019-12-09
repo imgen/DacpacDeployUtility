@@ -4,6 +4,7 @@ using System;
 using System.Xml.Linq;
 using System.Linq;
 using System.Collections.Generic;
+using DatabaseTools.Common;
 
 namespace DacpacDeployUtility
 {
@@ -11,10 +12,13 @@ namespace DacpacDeployUtility
     {
         static int Main(string[] args)
         {
+            const string usage = "Usage: DacpacDeployUtility [Required: PublishXmlFileFullPath] [Required: DacpacFileFullPath]";
+            CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
+
             if (args.Length < 2)
             {
                 Console.Error.WriteLine("Please provide enough parameters");
-                Console.Error.WriteLine("Usage: DacpacDeployUtility [PublishXmlFileFullPath] [DacpacFileFullPath]");
+                Console.Error.WriteLine(usage);
                 return 1;
             }
 
