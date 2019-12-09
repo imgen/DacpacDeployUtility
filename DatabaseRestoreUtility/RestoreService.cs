@@ -10,7 +10,7 @@ namespace DatabaseRestoreUtility
     public static class RestoreService
     {
         private static readonly int DefaultCommandTimeout = 
-            (int)TimeSpan.FromHours(24).TotalSeconds;
+            (int)TimeSpan.FromDays(1).TotalSeconds;
 
         private const string LogicalNameColumn = "LogicalName";
          

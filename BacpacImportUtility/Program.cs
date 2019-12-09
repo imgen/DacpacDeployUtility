@@ -7,6 +7,9 @@ namespace BacpacImportUtility
 {
     class Program
     {
+        private static readonly int DefaultCommandTimeout =
+            (int)TimeSpan.FromDays(1).TotalSeconds;
+
         static int Main(string[] args)
         {
             const string usage = "Usage: BacpacImportUtility [Required: ConnectionString] [Required: TargetDatabaseName] [Required: BacpacFileFullPath]";
@@ -68,7 +71,7 @@ namespace BacpacImportUtility
             using var package = BacPackage.Load(bacpacFileFullPath);
             var options = new DacImportOptions
             {
-                CommandTimeout = 600
+                CommandTimeout = DefaultCommandTimeout
             };
 
             ds.Message += (object sender, DacMessageEventArgs eventArgs) => Console.WriteLine(eventArgs.Message.Message);

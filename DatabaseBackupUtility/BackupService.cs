@@ -28,7 +28,7 @@ namespace DatabaseBackupUtility
             }
         }
 
-        private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromMilliseconds(2000).TotalSeconds;
+        private static readonly int DefaultCommandTimeout = (int)TimeSpan.FromDays(1).TotalSeconds;
         public async Task BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);

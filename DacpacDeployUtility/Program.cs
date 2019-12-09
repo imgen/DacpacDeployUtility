@@ -10,6 +10,8 @@ namespace DacpacDeployUtility
 {
     class Program
     {
+        private static readonly int DefaultCommandTimeout =
+            (int)TimeSpan.FromDays(1).TotalSeconds;
         static int Main(string[] args)
         {
             const string usage = "Usage: DacpacDeployUtility [Required: PublishXmlFileFullPath] [Required: DacpacFileFullPath]";
@@ -90,7 +92,7 @@ namespace DacpacDeployUtility
             using var package = DacPackage.Load(dacpacFileFullPath);
             var options = new DacDeployOptions
             {
-                CommandTimeout = 600
+                CommandTimeout = DefaultCommandTimeout
             };
 
             if (createNewDatabase != null)
