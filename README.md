@@ -1,5 +1,5 @@
 # DacpacDeployUtility
-A command line utility to replace `SqlPackage.exe` for publishing .dacpac file to database. Also some other database tools, such as 
+A command line utility to replace `SqlPackage.exe` for publishing .dacpac file to database. Also some other database tools for `Microsoft SQL Server`, such as 
 
 ## BacpacImportUtility
 A command line utility to import `.bacpac` files into a database
