@@ -12,7 +12,7 @@ namespace DatabaseKiller
     {
         private static readonly string[] _systemDatabaseNames = { "master", "tempdb", "model", "msdb" };
 
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             const string usage = "Usage: DatabaseKiller [ConnectionString] [DatabaseName]";
             CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
