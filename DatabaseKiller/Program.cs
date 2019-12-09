@@ -14,18 +14,19 @@ namespace DatabaseKiller
 
         static async Task<int> Main(string[] args)
         {
-            const string usage = "Usage: DatabaseKiller [Required: ConnectionString] [Required: DatabaseName]";
+            const string usage = "Usage: DatabaseKiller [Required: ConnectionString] [Required if InitialCatalog is not specified in ConnectionString: DatabaseName]";
             CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
-            if (args.Length < 2)
+            if (args.Length < 1)
             {
                 Console.Error.WriteLine("Please provide enough parameters");
                 Console.Error.WriteLine(usage);
                 return -1;
             }
-            var connectionString = args[0];
-            var database = args[1];
 
-            await KillDatabase(connectionString, database);
+            var connectionString = args[0];
+            var dbName = args.GetDatabaseName(connectionString, 1);
+
+            await KillDatabase(connectionString, dbName);
             return 0;
         }
 

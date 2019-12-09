@@ -11,7 +11,7 @@ namespace DatabaseRestoreUtility
         {
             CommandLineUtils.ShowUsageIfHelpRequested(
                 @"Usage: 
-DatabaseRestoreUtility [Required: Connection string] [Required: Bak file path] [Required: The name of the restored database] [Optional: The operation timeout in minutes]", 
+DatabaseRestoreUtility [Required: Connection string] [Required: Bak file path] [Required if InitialCatalog is not sepcified in connection string: The name of the restored database]", 
                 args);
             var connectionString = args.Length > 0 ?
                 args[0] : throw new ArgumentException($"Please pass connection string as first argument");
@@ -19,23 +19,7 @@ DatabaseRestoreUtility [Required: Connection string] [Required: Bak file path] [
             var bakFilePath = args.Length > 1 ?
                 args[1] : throw new ArgumentException($"Please pass .bak file path as the third argument");
 
-            var dbName = args.Length > 2? 
-                args[2] : throw new ArgumentException($"Please pass the name of destination database"); 
-
-            var timeoutString = args.Length > 3?
-                args[3] : null;
-
-            if (timeoutString != null && 
-                (!int.TryParse(timeoutString, out var timeoutInMinutes) ||
-                 timeoutInMinutes <= 0)
-                )
-            {
-                throw new ArgumentException($"The passed timeout is not a valid integer");
-            }
-            else
-            {
-                timeoutInMinutes = 0;
-            }
+            var dbName = args.GetDatabaseName(connectionString, 2);
 
             var fi = new FileInfo(bakFilePath);
             if (!fi.Exists)
@@ -46,8 +30,7 @@ DatabaseRestoreUtility [Required: Connection string] [Required: Bak file path] [
             Console.WriteLine($"Restoring bak file {bakFilePath} to database {dbName}");
             await RestoreService.RestoreDatabase(connectionString, 
                 bakFilePath, 
-                dbName,
-                timeoutInMinutes > 0? timeoutInMinutes * 60 : (int?)null);
+                dbName);
             Console.WriteLine($"Finished restoring bak file {bakFilePath} to database {dbName}");
         }
     }

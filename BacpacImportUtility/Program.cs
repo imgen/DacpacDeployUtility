@@ -12,22 +12,22 @@ namespace BacpacImportUtility
 
         static int Main(string[] args)
         {
-            const string usage = "Usage: BacpacImportUtility [Required: ConnectionString] [Required: TargetDatabaseName] [Required: BacpacFileFullPath]";
+            const string usage = "Usage: BacpacImportUtility [Required: ConnectionString] [Required: BacpacFileFullPath] [Required if InitialCatalog is not specified in ConnectionString: TargetDatabaseName]";
             CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
 
-            if (args.Length < 3)
+            if (args.Length < 2)
             {
                 Console.Error.WriteLine("Please provide enough parameters");
                 Console.Error.WriteLine(usage);
                 return 1;
             }
             var connectionString = args[0];
-            var targetDatabaseName = args[1];
-            var bacpacFileFullPath = args[2];
+            var bacpacFileFullPath = args[1];
+            var dbName = args.GetDatabaseName(connectionString, 2);
             try
             {
                 SetupRegistryQueryExecutionTimeout();
-                ImportBacpac(connectionString, targetDatabaseName, bacpacFileFullPath);
+                ImportBacpac(connectionString, dbName, bacpacFileFullPath);
 
                 return 0;
             }
