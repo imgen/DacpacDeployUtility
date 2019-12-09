@@ -16,16 +16,15 @@ namespace DatabaseRestoreUtility
          
         public static async Task RestoreDatabase(string connectionString, 
             string bakFilePath, 
-            string dataDir,
             string dbName,
             int? timeout = default)
         {
             using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
 
             var query = $@"RESTORE FILELISTONLY 
    FROM DISK='{bakFilePath}'";
             using var command = new SqlCommand(query, connection);
-            await connection.OpenAsync();
             using var reader = await command.ExecuteReaderAsync();
             var columns = Enumerable.Range(0, reader.FieldCount)
                 .Select(reader.GetName)
@@ -40,16 +39,26 @@ namespace DatabaseRestoreUtility
             var logicalDbName = logicalNames[0];
             var logicalLogName = logicalNames[1];
 
+            query = "SELECT [name], [physical_name] FROM sys.master_files";
+            
+            using var command2 = new SqlCommand(query, connection);
+            using var reader2 = await command2.ExecuteReaderAsync();
+            // Move to first row and then retrieve the physical_name column
+            reader2.Read();
+            var physicalFilePath = reader2.GetString(1);
+            reader2.Close();
+            var dataDir = new FileInfo(physicalFilePath).Directory.FullName;
+
             query = $@"RESTORE DATABASE {dbName} 
 FROM DISK='{bakFilePath}'
 WITH MOVE '{logicalDbName}' TO '{Path.Combine(dataDir, dbName + ".mdf")}',
 MOVE '{logicalLogName}' TO '{Path.Combine(dataDir, dbName + ".ldf")}'
 ";
-            using var command2 = new SqlCommand(query, connection)
+            using var command3 = new SqlCommand(query, connection)
             {
                 CommandTimeout = timeout ?? DefaultCommandTimeout
             };
-            await command2.ExecuteNonQueryAsync();
+            await command3.ExecuteNonQueryAsync();
         }
     }
 }

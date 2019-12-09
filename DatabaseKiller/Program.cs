@@ -14,7 +14,7 @@ namespace DatabaseKiller
 
         static async Task<int> Main(string[] args)
         {
-            const string usage = "Usage: DatabaseKiller [ConnectionString] [DatabaseName]";
+            const string usage = "Usage: DatabaseKiller [Required: ConnectionString] [Required: DatabaseName]";
             CommandLineUtils.ShowUsageIfHelpRequested(usage, args);
             if (args.Length < 2)
             {
