@@ -17,7 +17,7 @@ DatabaseBackupUtility [Required: Connection string] [Required: The path of the d
                 args[0] : throw new ArgumentException($"Please pass connection string as first argument");
 
             var backupDir = args.Length > 1?
-                args[1] : throw new ArgumentException($"Please pass backup directory as the third argument");
+                args[1] : throw new ArgumentException($"Please pass backup directory as the second argument");
 
             var dbName = args.GetDatabaseName(connectionString, 2);
 

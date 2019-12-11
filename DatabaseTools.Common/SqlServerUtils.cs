@@ -17,7 +17,7 @@ namespace DatabaseTools.Common
             if (string.IsNullOrEmpty(dbName))
             {
                 dbName = args.Length > dbNameParameterIndex ?
-                    args[dbNameParameterIndex] : throw new ArgumentException($"Please pass the name of destination database");
+                    args[dbNameParameterIndex] : throw new ArgumentException($"Please pass the name of database");
             }
             if (args.Length > dbNameParameterIndex)
             {

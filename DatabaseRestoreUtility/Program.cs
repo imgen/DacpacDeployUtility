@@ -17,7 +17,7 @@ DatabaseRestoreUtility [Required: Connection string] [Required: Bak file path] [
                 args[0] : throw new ArgumentException($"Please pass connection string as first argument");
 
             var bakFilePath = args.Length > 1 ?
-                args[1] : throw new ArgumentException($"Please pass .bak file path as the third argument");
+                args[1] : throw new ArgumentException($"Please pass .bak file path as the second argument");
 
             var dbName = args.GetDatabaseName(connectionString, 2);
 
