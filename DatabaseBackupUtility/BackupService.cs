@@ -29,14 +29,18 @@ namespace DatabaseBackupUtility
         public async Task BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);
-            using var connection = new SqlConnection(_connectionString);
-            var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
-            using var command = new SqlCommand(query, connection)
-            {
-                CommandTimeout = timeout ?? DefaultCommandTimeout
-            };
-            await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+
+            await SqlServerUtils.WithDatabaseConnection(_connectionString,
+                async connection =>
+                {
+                    var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
+                    using var command = new SqlCommand(query, connection)
+                    {
+                        CommandTimeout = timeout ?? DefaultCommandTimeout
+                    };
+                    await command.ExecuteNonQueryAsync();
+                });
+
             Console.WriteLine($"The database {databaseName} is backed up to the file {filePath}");
         }
 

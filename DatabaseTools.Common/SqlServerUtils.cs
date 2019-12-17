@@ -35,10 +35,8 @@ namespace DatabaseTools.Common
 
         public static async Task<List<string>> GetAllUserDatabases(this string connectionString)
         {
-            using var connection = new SqlConnection(connectionString);
-            await connection.OpenAsync();
-            var databasesTable = connection.GetSchema("Databases");
-            connection.Close();
+            var databasesTable = await WithDatabaseConnection(connectionString,
+                    connection => connection.GetSchema("Databases"));
 
             return databasesTable.Rows
                 .OfType<DataRow>()
@@ -79,6 +77,20 @@ WHERE d.name = '{databaseName}'";
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
             return await func(connection);
+        }
+
+        public static async Task<T> WithDatabaseConnection<T>(string connectionString, Func<SqlConnection, T> func)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            return func(connection);
+        }
+
+        public static async Task WithDatabaseConnection<T>(string connectionString, Action<SqlConnection> action)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            action(connection);
         }
 
         public static async Task WithDatabaseConnection(string connectionString, Func<SqlConnection, Task> func)
