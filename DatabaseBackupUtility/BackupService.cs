@@ -42,7 +42,7 @@ namespace DatabaseBackupUtility
 
         private string BuildBackupPathWithFilename(string databaseName)
         {
-            string filename = $"{databaseName}-{DateTime.Now:yyyy-MM-dd-hh:mm}.bak";
+            string filename = $"{databaseName}-{DateTime.Now:yyyy-MM-dd-hh-mm}.bak";
 
             return Path.Combine(_backupFolderFullPath, filename);
         }
