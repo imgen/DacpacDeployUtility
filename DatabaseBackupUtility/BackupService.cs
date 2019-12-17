@@ -37,6 +37,7 @@ namespace DatabaseBackupUtility
             };
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
+            Console.WriteLine($"The database {databaseName} is backed up to the file {filePath}");
         }
 
         private string BuildBackupPathWithFilename(string databaseName)

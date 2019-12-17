@@ -21,6 +21,7 @@ DatabaseBackupUtility [Required: Connection string] [Required: The path of the d
 
             var dbName = args.GetDatabaseName(connectionString, 2);
 
+            Console.WriteLine($"Backing up database {dbName} to directory {backupDir}");
             var dirInfo = new DirectoryInfo(backupDir);
             if (!dirInfo.Exists)
             {
