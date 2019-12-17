@@ -7,7 +7,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using System.IO;
 
-namespace DatabaseKiller.Windows
+namespace DatabaseKiller
 {
     class Program
     {
