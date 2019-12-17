@@ -58,6 +58,8 @@ DatabaseBackupUtility [Required: Connection string] [Required: The path of the d
             dbBackup.Devices.AddDevice(backupFileName, DeviceType.File);
 
             dbBackup.SqlBackup(server);
+
+            Console.WriteLine($"The database {databaseName} is backed up to the file {backupFileName}");
         }
 
         private static string BuildBackupPathWithFilename(string backupDir, string databaseName)
