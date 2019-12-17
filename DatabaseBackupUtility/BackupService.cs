@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using DatabaseTools.Common;
 
 namespace DatabaseBackupUtility
 {
@@ -12,7 +10,6 @@ namespace DatabaseBackupUtility
     {
         private readonly string _connectionString;
         private readonly string _backupFolderFullPath;
-        private readonly string[] _systemDatabaseNames = { "master", "tempdb", "model", "msdb" };
 
         public BackupService(string connectionString, string backupFolderFullPath)
         {
@@ -22,7 +19,7 @@ namespace DatabaseBackupUtility
 
         public async Task BackupAllUserDatabases()
         {
-            foreach (string databaseName in await GetAllUserDatabases())
+            foreach (string databaseName in await _connectionString.GetAllUserDatabases())
             {
                 await BackupDatabase(databaseName);
             }
@@ -42,22 +39,9 @@ namespace DatabaseBackupUtility
             await command.ExecuteNonQueryAsync();
         }
 
-        private async Task<List<string>> GetAllUserDatabases()
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-            var databasesTable = connection.GetSchema("Databases");
-
-            return databasesTable.Rows
-                .OfType<DataRow>()
-                .Select(row => row["database_name"].ToString())
-                .Where(dbName => !_systemDatabaseNames.Contains(dbName))
-                .ToList();
-        }
-
         private string BuildBackupPathWithFilename(string databaseName)
         {
-            string filename = $"{databaseName}-{DateTime.Now:yyyy-MM-dd}.bak";
+            string filename = $"{databaseName}-{DateTime.Now:yyyy-MM-dd-hh:mm}.bak";
 
             return Path.Combine(_backupFolderFullPath, filename);
         }

@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DatabaseTools.Common
 {
     public static class SqlServerUtils
     {
+        private static readonly string[] _systemDatabaseNames = { "master", "tempdb", "model", "msdb" };
+
         public static string GetDatabaseNameFromConnectionString(this string connectionString)
         {
             var connectionStringObject = new SqlConnectionStringBuilder(connectionString);
@@ -25,6 +31,61 @@ namespace DatabaseTools.Common
             }
 
             return dbName;
+        }
+
+        public static async Task<List<string>> GetAllUserDatabases(this string connectionString)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            var databasesTable = connection.GetSchema("Databases");
+            connection.Close();
+
+            return databasesTable.Rows
+                .OfType<DataRow>()
+                .Select(row => row["database_name"].ToString())
+                .Where(dbName => !_systemDatabaseNames.Contains(dbName))
+                .ToList();
+        }
+
+        public static async Task<List<string>> GetPhysicalFileNames(this string connectionString, string databaseName)
+        {
+            var query = @$"SELECT d.name AS DatabaseName, f.name AS LogicalName,
+f.physical_name AS PhysicalName,
+f.type_desc TypeofFile
+FROM sys.master_files f
+INNER JOIN sys.databases d
+ON d.database_id = f.database_id
+WHERE d.name = '{databaseName}'";
+
+            return await WithDatabaseConnection(connectionString, 
+                    async connection =>
+                    {
+                        using var command = new SqlCommand(query, connection);
+                        using var reader = await command.ExecuteReaderAsync();
+                        var physicalPaths = new List<string>();
+                        while(reader.Read())
+                        {
+                            var physicalFilePath = reader.GetString(2);
+                            physicalPaths.Add(physicalFilePath);
+                        }
+                        reader.Close();
+                        return physicalPaths;
+                    }
+                );
+        }
+
+        public static async Task<T> WithDatabaseConnection<T>(string connectionString, Func<SqlConnection, Task<T>> func)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            return await func(connection);
+        }
+
+        public static async Task WithDatabaseConnection(string connectionString, Func<SqlConnection, Task> func)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            await func(connection);
         }
     }
 }
