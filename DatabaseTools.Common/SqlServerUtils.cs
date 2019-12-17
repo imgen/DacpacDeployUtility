@@ -35,8 +35,10 @@ namespace DatabaseTools.Common
 
         public static async Task<List<string>> GetAllUserDatabases(this string connectionString)
         {
-            var databasesTable = await WithDatabaseConnection(connectionString,
-                    connection => connection.GetSchema("Databases"));
+            var databasesTable = await WithDatabaseConnection(
+                    connectionString,
+                    connection => connection.GetSchema("Databases")
+                );
 
             return databasesTable.Rows
                 .OfType<DataRow>()
@@ -55,10 +57,9 @@ INNER JOIN sys.databases d
 ON d.database_id = f.database_id
 WHERE d.name = '{databaseName}'";
 
-            return await WithDatabaseConnection(connectionString, 
-                    async connection =>
+            return await WithDatabaseCommand(connectionString, 
+                    async command =>
                     {
-                        using var command = new SqlCommand(query, connection);
                         using var reader = await command.ExecuteReaderAsync();
                         var physicalPaths = new List<string>();
                         while(reader.Read())
@@ -68,7 +69,8 @@ WHERE d.name = '{databaseName}'";
                         }
                         reader.Close();
                         return physicalPaths;
-                    }
+                    },
+                    query
                 );
         }
 
@@ -98,6 +100,38 @@ WHERE d.name = '{databaseName}'";
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
             await func(connection);
+        }
+
+        public static async Task<T> WithDatabaseCommand<T>(string connectionString, Func<SqlCommand, Task<T>> func, string query)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            using var command = new SqlCommand(query, connection);
+            return await func(command);
+        }
+
+        public static async Task<T> WithDatabaseCommand<T>(string connectionString, Func<SqlCommand, T> func, string query)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            using var command = new SqlCommand(query, connection);
+            return func(command);
+        }
+
+        public static async Task WithDatabaseCommand<T>(string connectionString, Action<SqlCommand> action, string query)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            using var command = new SqlCommand(query, connection);
+            action(command);
+        }
+
+        public static async Task WithDatabaseCommand(string connectionString, Func<SqlCommand, Task> func, string query)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            using var command = new SqlCommand(query, connection);
+            await func(command);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using DatabaseTools.Common;
@@ -29,17 +28,14 @@ namespace DatabaseBackupUtility
         public async Task BackupDatabase(string databaseName, int? timeout = default)
         {
             string filePath = BuildBackupPathWithFilename(databaseName);
-
-            await SqlServerUtils.WithDatabaseConnection(_connectionString,
-                async connection =>
+            var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
+            await SqlServerUtils.WithDatabaseCommand(_connectionString,
+                async command =>
                 {
-                    var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{filePath}'";
-                    using var command = new SqlCommand(query, connection)
-                    {
-                        CommandTimeout = timeout ?? DefaultCommandTimeout
-                    };
+                    command.CommandTimeout = timeout ?? DefaultCommandTimeout;
                     await command.ExecuteNonQueryAsync();
-                });
+                },
+                query);
 
             Console.WriteLine($"The database {databaseName} is backed up to the file {filePath}");
         }
