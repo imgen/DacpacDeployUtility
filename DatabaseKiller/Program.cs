@@ -46,24 +46,55 @@ namespace DatabaseKiller
             await SqlServerUtils.WithDatabaseConnection(connectionString, 
                 async connection =>
                 {
-                    var commands = new[]
-                        {
-                            "USE master",
-                            $"ALTER DATABASE {databaseName} SET OFFLINE WITH ROLLBACK IMMEDIATE",
-                            $"DROP DATABASE {databaseName}"
-                        };
-                    foreach (var command in commands)
-                    {
-                        using var sqlCommand = new SqlCommand(command, connection)
+                    var query = $@"
+DECLARE @dbId int
+DECLARE @isStatAsyncOn bit
+DECLARE @jobId int
+DECLARE @sqlString nvarchar(500)
+DECLARE @dbState nvarchar(100)
+
+SELECT @dbId = database_id,
+       @isStatAsyncOn = is_auto_update_stats_async_on,
+       @dbState = state_desc
+FROM sys.databases
+WHERE name = '{databaseName}'
+
+IF @isStatAsyncOn = 1 AND @dbState = 'ONLINE'
+BEGIN
+    ALTER DATABASE {databaseName} SET  AUTO_UPDATE_STATISTICS_ASYNC OFF
+
+    -- kill running jobs
+    DECLARE jobsCursor CURSOR FOR
+    SELECT job_id
+    FROM sys.dm_exec_background_job_queue
+    WHERE database_id = @dbId
+
+    OPEN jobsCursor
+
+    FETCH NEXT FROM jobsCursor INTO @jobId
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        set @sqlString = 'KILL STATS JOB ' + STR(@jobId)
+        EXECUTE sp_executesql @sqlString
+        FETCH NEXT FROM jobsCursor INTO @jobId
+    END
+
+    CLOSE jobsCursor
+    DEALLOCATE jobsCursor
+END
+
+IF @dbState = 'ONLINE'
+BEGIN
+    ALTER DATABASE {databaseName} SET  SINGLE_USER WITH ROLLBACK IMMEDIATE
+END
+
+DROP DATABASE {databaseName}
+";
+                        using var sqlCommand = new SqlCommand(query, connection)
                         {
                             CommandTimeout = timeout ?? DefaultCommandTimeout
                         };
-                        try
-                        {
-                            await sqlCommand.ExecuteNonQueryAsync();
-                        }
-                        catch { }
-                    }
+                        await sqlCommand.ExecuteNonQueryAsync();
                 });
 
             foreach (var fileName in physicalFileNames)
