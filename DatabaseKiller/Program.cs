@@ -103,25 +103,23 @@ DROP DATABASE {databaseName}
             {
                 return;
             }
-            foreach (var fileName in physicalFileNames)
+            var existingFiles = physicalFileNames.Where(File.Exists).ToArray();
+            foreach (var fileName in existingFiles)
             {
-                if (File.Exists(fileName))
-                {
-                    File.Delete(fileName);
-                }
-            }
-
-            static bool IsLocalServer(string dataSource)
-            {
-                dataSource = dataSource.ToLowerInvariant();
-                return dataSource == "(local)" ||
-                    dataSource == "localhost" ||
-                    dataSource == Environment.MachineName ||
-                    dataSource.Contains(GetLocalIPAddress());
+                File.Delete(fileName);
             }
         }
 
-        public static string GetLocalIPAddress()
+        private static bool IsLocalServer(string dataSource)
+        {
+            dataSource = dataSource.ToLowerInvariant();
+            return dataSource == "(local)" ||
+                dataSource == "localhost" ||
+                dataSource == Environment.MachineName ||
+                dataSource.Contains(GetLocalIPAddress());
+        }
+
+        private static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
             return host.AddressList
