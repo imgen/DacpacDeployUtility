@@ -3,6 +3,8 @@ using System;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace DatabaseKiller
@@ -43,10 +45,7 @@ namespace DatabaseKiller
             }
             var physicalFileNames = await SqlServerUtils.GetPhysicalFileNames(connectionString, databaseName);
 
-            await SqlServerUtils.WithDatabaseConnection(connectionString, 
-                async connection =>
-                {
-                    var query = $@"
+            var query = $@"
 DECLARE @dbId int
 DECLARE @isStatAsyncOn bit
 DECLARE @jobId int
@@ -90,13 +89,20 @@ END
 
 DROP DATABASE {databaseName}
 ";
-                        using var sqlCommand = new SqlCommand(query, connection)
-                        {
-                            CommandTimeout = timeout ?? DefaultCommandTimeout
-                        };
-                        await sqlCommand.ExecuteNonQueryAsync();
-                });
+            
+            await SqlServerUtils.WithDatabaseCommand(connectionString, 
+                async command =>
+                {
+                    var connection = command.Connection;
+                    command.CommandTimeout = timeout ?? DefaultCommandTimeout;
+                    await command.ExecuteNonQueryAsync();
+                }, query);
 
+            var dataSource = connectionStringBuilder.DataSource;
+            if (!IsLocalServer(dataSource))
+            {
+                return;
+            }
             foreach (var fileName in physicalFileNames)
             {
                 if (File.Exists(fileName))
@@ -104,6 +110,23 @@ DROP DATABASE {databaseName}
                     File.Delete(fileName);
                 }
             }
+
+            static bool IsLocalServer(string dataSource)
+            {
+                dataSource = dataSource.ToLowerInvariant();
+                return dataSource == "(local)" ||
+                    dataSource == "localhost" ||
+                    dataSource == Environment.MachineName ||
+                    dataSource.Contains(GetLocalIPAddress());
+            }
+        }
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            return host.AddressList
+                .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
+                .ToString();
         }
     }
 }
