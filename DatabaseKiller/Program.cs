@@ -1,10 +1,7 @@
 ﻿using DatabaseTools.Common;
 using System;
 using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace DatabaseKiller
@@ -99,32 +96,7 @@ DROP DATABASE {databaseName}
                 }, query);
 
             var dataSource = connectionStringBuilder.DataSource;
-            if (!IsLocalServer(dataSource))
-            {
-                return;
-            }
-            var existingFiles = physicalFileNames.Where(File.Exists).ToArray();
-            foreach (var fileName in existingFiles)
-            {
-                File.Delete(fileName);
-            }
-        }
-
-        private static bool IsLocalServer(string dataSource)
-        {
-            dataSource = dataSource.ToLowerInvariant();
-            return dataSource == "(local)" ||
-                dataSource == "localhost" ||
-                dataSource == Environment.MachineName ||
-                dataSource.Contains(GetLocalIPAddress());
-        }
-
-        private static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            return host.AddressList
-                .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
-                .ToString();
+            dataSource.DeleteLocalServerDatabaseFiles(physicalFileNames);
         }
     }
 }

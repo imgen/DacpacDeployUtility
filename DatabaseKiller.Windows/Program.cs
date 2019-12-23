@@ -5,9 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 
 namespace DatabaseKiller
 {
@@ -47,32 +44,7 @@ namespace DatabaseKiller
             server.KillDatabase(databaseName);
 
             var dataSource = new SqlConnectionStringBuilder(connectionString).DataSource;
-            if (!IsLocalServer(dataSource))
-            {
-                return;
-            }
-            var existingFiles = physicalFileNames.Where(File.Exists).ToArray();
-            foreach (var fileName in existingFiles)
-            {
-                File.Delete(fileName);
-            }
-        }
-
-        private static bool IsLocalServer(string dataSource)
-        {
-            dataSource = dataSource.ToLowerInvariant();
-            return dataSource == "(local)" ||
-                dataSource == "localhost" ||
-                dataSource == Environment.MachineName ||
-                dataSource.Contains(GetLocalIPAddress());
-        }
-
-        private static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            return host.AddressList
-                .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
-                .ToString();
+            dataSource.DeleteLocalServerDatabaseFiles(physicalFileNames);
         }
     }
 }

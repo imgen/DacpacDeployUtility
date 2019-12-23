@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace DatabaseTools.Common
@@ -132,6 +135,38 @@ WHERE d.name = '{databaseName}'";
             await connection.OpenAsync();
             using var command = new SqlCommand(query, connection);
             await func(command);
+        }
+        
+        public static void DeleteLocalServerDatabaseFiles(
+            this string dataSource, 
+            IList<string> dbFiles)
+        {
+            if (!dataSource.IsLocalServer())
+            {
+                return;
+            }
+            var existingFiles = dbFiles.Where(File.Exists).ToArray();
+            foreach (var fileName in existingFiles)
+            {
+                File.Delete(fileName);
+            }
+        }
+
+        public static bool IsLocalServer(this string dataSource)
+        {
+            dataSource = dataSource.ToLowerInvariant();
+            return dataSource == "(local)" ||
+                dataSource == "localhost" ||
+                dataSource == Environment.MachineName ||
+                dataSource.Contains(GetLocalIPAddress());
+        }
+
+        private static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            return host.AddressList
+                .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
+                .ToString();
         }
     }
 }
