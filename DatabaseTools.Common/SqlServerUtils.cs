@@ -22,11 +22,9 @@ namespace DatabaseTools.Common
 
         public static string GetDatabaseName(this string[] args, string connectionString, int dbNameParameterIndex)
         {
-            if (args.Length > dbNameParameterIndex)
-            {
-                return args[dbNameParameterIndex];
-            }
-            var dbName = connectionString.GetDatabaseNameFromConnectionString();
+            var dbName = args.Length > dbNameParameterIndex? 
+                args[dbNameParameterIndex] : null;
+            dbName ??= connectionString.GetDatabaseNameFromConnectionString();
             return string.IsNullOrEmpty(dbName)?
                 throw new ArgumentException($"Please pass the name of database"):
                 dbName;
