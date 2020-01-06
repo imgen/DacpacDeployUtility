@@ -46,6 +46,6 @@ this should generate the `.dacpac` file output in the `bin\Debug` folder, then t
 There is also a `BacpacImportUtility` which will import/restore the `.bacpac` file into a empty database or a brand new one if the database doesn't exist
 ## Usage
 ```
-BacpacImportUtility.exe [ConnectionString] [DatabaseName] [PathToBacpacFile]
+BacpacImportUtility.exe [ConnectionString] [PathToBacpacFile] [DatabaseName: Optional if InitialCatalog is specified in the connection string]
 ```
 If the database already exists and contains user objects in it, this utility will throw exception. Beware of that.
