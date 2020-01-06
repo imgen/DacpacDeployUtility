@@ -22,18 +22,14 @@ namespace DatabaseTools.Common
 
         public static string GetDatabaseName(this string[] args, string connectionString, int dbNameParameterIndex)
         {
-            var dbName = connectionString.GetDatabaseNameFromConnectionString();
-            if (string.IsNullOrEmpty(dbName))
-            {
-                dbName = args.Length > dbNameParameterIndex ?
-                    args[dbNameParameterIndex] : throw new ArgumentException($"Please pass the name of database");
-            }
             if (args.Length > dbNameParameterIndex)
             {
-                dbName = args[dbNameParameterIndex];
+                return args[dbNameParameterIndex];
             }
-
-            return dbName;
+            var dbName = connectionString.GetDatabaseNameFromConnectionString();
+            return string.IsNullOrEmpty(dbName)?
+                throw new ArgumentException($"Please pass the name of database"):
+                dbName;
         }
 
         public static async Task<List<string>> GetAllUserDatabases(this string connectionString)
