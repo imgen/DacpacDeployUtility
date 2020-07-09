@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.Dac;
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Xml.Linq;
 using System.Linq;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace DacpacDeployUtility
                 return 1;
             }
 
+            KillOtherInstances();
+
             var publishFileFullPath = args[0];
             var dacpacFileFullPath = args[1];
             try
@@ -33,10 +36,8 @@ namespace DacpacDeployUtility
 
                 return 0;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("Error in Main: " + ex.Message + "\n" + ex.StackTrace);
-
                 for (int i = 0; i < args.Length; i++)
                 {
                     Console.WriteLine("Value in args[" + i + "]: " + args[i]);
@@ -46,6 +47,28 @@ namespace DacpacDeployUtility
 
                 return 1;
             }
+        }
+
+        private static void KillOtherInstances()
+        {
+            var current = Process.GetCurrentProcess();
+            // get all the processes with currnent process name
+            var processes = Process.GetProcessesByName(current.ProcessName);
+            foreach (var process in processes.Where(x => x.Id != current.Id))
+            {
+                EndProcessTree(process.Id);
+            }
+        }
+
+        private static void EndProcessTree(int processId)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "taskkill",
+                Arguments = $"/PID {processId} /f /t",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            }).WaitForExit();
         }
 
         private static void SetupRegistryQueryExecutionTimeout()
@@ -69,7 +92,7 @@ namespace DacpacDeployUtility
             string dacpacFileFullPath)
         {
             var root = XElement.Load(publishFileFullPath);
-            var ns = root.GetDefaultNamespace(); 
+            var ns = root.GetDefaultNamespace();
             var targetDatabaseNameNode = root.Descendants(ns + "TargetDatabaseName").FirstOrDefault();
             if (string.IsNullOrWhiteSpace(targetDatabaseNameNode?.Value))
             {
@@ -120,7 +143,7 @@ namespace DacpacDeployUtility
                 options.GenerateSmartDefaults = generateSmartDefaults.Value;
             }
 
-            foreach(XElement node in sqlCmdVariableNodes)
+            foreach (XElement node in sqlCmdVariableNodes)
             {
                 var variableName = (string)node.Attribute("Include");
                 var valueNode = node.Element(ns + "Value");
@@ -139,7 +162,7 @@ namespace DacpacDeployUtility
             bool? GetBooleanNode(string nodeName)
             {
                 var node = GetNode(nodeName);
-                return node == null? (bool?)node : node.Value?.ToLowerInvariant() == "true";
+                return node == null ? (bool?)node : node.Value?.ToLowerInvariant() == "true";
             }
         }
     }
